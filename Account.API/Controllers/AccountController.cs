@@ -76,7 +76,7 @@ namespace Account.API.Controllers
         }
 
         [HttpPost("Authenticate")]
-        public async Task<IActionResult> AuthenticateToken([FromBody]string token)
+        public async Task<IActionResult> AuthenticateToken([FromBody] string token)
         {
             // SETUP UNITY TOKEN VERIFICATION VIA THEIR PROVIDED ENDPOINT
             string JWKSEndPoint = "https://player-auth.services.api.unity.com/.well-known/jwks.json";
@@ -105,17 +105,17 @@ namespace Account.API.Controllers
 
             var isValid = ValidateToken(token, validationParams);
 
-            switch(isValid)
+            switch (isValid)
             {
                 case 0:
-                    default:
-                    return Ok(new {message = "Token is Valid."});
+                default:
+                    return Ok(new { message = "Token is Valid." });
                 case 1:
                     return BadRequest();
                 case 2:
-                    return Ok(new {message = "Token is expired."});
+                    return Ok(new { message = "Token is expired." });
                 case 3:
-                    return Ok(new {message = "An error occured with the provided token."});
+                    return Ok(new { message = "An error occured with the provided token." });
             }
         }
         #endregion
@@ -222,7 +222,7 @@ namespace Account.API.Controllers
         #region Currency Management
 
         /// <summary>
-        /// Add currency (regular or premium) to the user's profile.
+        /// Add currency (regular or premium) to the user's profile and return the updated balance.
         /// </summary>
         [HttpPut("AddCurrency")]
         public async Task<IActionResult> AddCurrency([FromBody] AddCurrencyRequest request)
@@ -230,12 +230,19 @@ namespace Account.API.Controllers
             if (string.IsNullOrEmpty(request.UserId))
                 return BadRequest("User ID is required.");
 
-            var success = await _accountService.AddCurrencyAsync(request.UserId, request.Amount, request.IsPremium);
-            return success ? Ok("Currency added successfully.") : BadRequest("Failed to add currency.");
+            try
+            {
+                var updatedBalance = await _accountService.AddCurrencyAsync(request.UserId, request.Amount, request.IsPremium);
+                return Ok(new { Message = "Currency added successfully.", UpdatedBalance = updatedBalance });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to add currency: {ex.Message}");
+            }
         }
 
         /// <summary>
-        /// Consume currency (regular or premium) from the user's profile.
+        /// Consume currency (regular or premium) from the user's profile and return the updated balance.
         /// </summary>
         [HttpPut("ConsumeCurrency")]
         public async Task<IActionResult> ConsumeCurrency([FromBody] ConsumeCurrencyRequest request)
@@ -243,9 +250,17 @@ namespace Account.API.Controllers
             if (string.IsNullOrEmpty(request.UserId))
                 return BadRequest("User ID is required.");
 
-            var success = await _accountService.ConsumeCurrencyAsync(request.UserId, request.Amount, request.IsPremium);
-            return success ? Ok("Currency consumed successfully.") : BadRequest("Insufficient currency or failed to consume currency.");
+            try
+            {
+                var updatedBalance = await _accountService.ConsumeCurrencyAsync(request.UserId, request.Amount, request.IsPremium);
+                return Ok(new { Message = "Currency consumed successfully.", UpdatedBalance = updatedBalance });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to consume currency: {ex.Message}");
+            }
         }
+
 
         #endregion
     }

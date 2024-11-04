@@ -105,7 +105,7 @@ namespace Account.API.Services
 
         #region Currency Management
 
-        public async Task<bool> AddCurrencyAsync(string userId, int amount, bool isPremium = false)
+        public async Task<int> AddCurrencyAsync(string userId, int amount, bool isPremium = false)
         {
             if (amount <= 0)
                 throw new ArgumentException("Amount must be a positive integer.");
@@ -115,11 +115,18 @@ namespace Account.API.Services
                 ? Builders<ProfileModel>.Update.Inc(p => p.Profile.PremiumCurrency, amount)
                 : Builders<ProfileModel>.Update.Inc(p => p.Profile.Currency, amount);
 
-            var result = await _profiles.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+            var result = await _profiles.FindOneAndUpdateAsync(
+                filter,
+                update,
+                new FindOneAndUpdateOptions<ProfileModel>
+                {
+                    ReturnDocument = ReturnDocument.After
+                });
+
+            return isPremium ? result.Profile.PremiumCurrency : result.Profile.Currency;
         }
 
-        public async Task<bool> ConsumeCurrencyAsync(string userId, int amount, bool isPremium)
+        public async Task<int> ConsumeCurrencyAsync(string userId, int amount, bool isPremium)
         {
             var filter = Builders<ProfileModel>.Filter.Eq(p => p.Profile.UserId, userId) &
                          Builders<ProfileModel>.Filter.Gte(isPremium ? p => p.Profile.PremiumCurrency : p => p.Profile.Currency, amount);
@@ -128,8 +135,15 @@ namespace Account.API.Services
                 ? Builders<ProfileModel>.Update.Inc(p => p.Profile.PremiumCurrency, -amount)
                 : Builders<ProfileModel>.Update.Inc(p => p.Profile.Currency, -amount);
 
-            var result = await _profiles.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+            var result = await _profiles.FindOneAndUpdateAsync(
+                filter,
+                update,
+                new FindOneAndUpdateOptions<ProfileModel>
+                {
+                    ReturnDocument = ReturnDocument.After
+                });
+
+            return isPremium ? result.Profile.PremiumCurrency : result.Profile.Currency;
         }
 
         #endregion
