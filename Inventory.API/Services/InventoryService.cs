@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace Account.API.Services
+namespace Inventory.API.Services
 {
     public class InventoryService
     {
@@ -14,5 +14,12 @@ namespace Account.API.Services
             var mongoDatabase = mongoClient.GetDatabase(settings.Value.DatabaseName);
             _inventory = mongoDatabase.GetCollection<InventoryModel>(settings.Value.InventoryCollectionName);
         }
+
+        #region Inventory Creation
+        public Task<string> CreateProfileInventory(string userId)
+        {
+            return null;
+        }
+        #endregion
     }
 }
