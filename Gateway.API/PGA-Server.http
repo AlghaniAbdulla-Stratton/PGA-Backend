@@ -1,0 +1,6 @@
+@PGA_Server_HostAddress = http://localhost:5120
+
+GET {{PGA_Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

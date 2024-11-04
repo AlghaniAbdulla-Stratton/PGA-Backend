@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway.API", "Gateway.API.csproj", "{60679078-73D8-4559-99D3-0C56999FE9CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Multiplayer.API", "..\Multiplayer.API\Multiplayer.API.csproj", "{20052ECB-A940-4638-9DEB-BE4FB8EDA6B9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Account.API", "..\Account.API\Account.API.csproj", "{A48968D0-6D39-4542-AC65-CED12ECB787E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Social.API", "..\Social.API\Social.API.csproj", "{FAC1EFA1-EA5E-45B7-84B1-792F35D17864}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Item.API", "..\Item.API\Item.API.csproj", "{5202E531-5230-42E3-8C10-E901DA01C2E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFT.API", "..\NFT.API\NFT.API.csproj", "{25E94BEC-1DFB-4835-9C21-59DA2BE9ED53}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60679078-73D8-4559-99D3-0C56999FE9CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60679078-73D8-4559-99D3-0C56999FE9CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60679078-73D8-4559-99D3-0C56999FE9CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60679078-73D8-4559-99D3-0C56999FE9CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20052ECB-A940-4638-9DEB-BE4FB8EDA6B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20052ECB-A940-4638-9DEB-BE4FB8EDA6B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20052ECB-A940-4638-9DEB-BE4FB8EDA6B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20052ECB-A940-4638-9DEB-BE4FB8EDA6B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A48968D0-6D39-4542-AC65-CED12ECB787E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A48968D0-6D39-4542-AC65-CED12ECB787E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A48968D0-6D39-4542-AC65-CED12ECB787E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A48968D0-6D39-4542-AC65-CED12ECB787E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC1EFA1-EA5E-45B7-84B1-792F35D17864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC1EFA1-EA5E-45B7-84B1-792F35D17864}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC1EFA1-EA5E-45B7-84B1-792F35D17864}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC1EFA1-EA5E-45B7-84B1-792F35D17864}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5202E531-5230-42E3-8C10-E901DA01C2E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5202E531-5230-42E3-8C10-E901DA01C2E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5202E531-5230-42E3-8C10-E901DA01C2E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5202E531-5230-42E3-8C10-E901DA01C2E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25E94BEC-1DFB-4835-9C21-59DA2BE9ED53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25E94BEC-1DFB-4835-9C21-59DA2BE9ED53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25E94BEC-1DFB-4835-9C21-59DA2BE9ED53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25E94BEC-1DFB-4835-9C21-59DA2BE9ED53}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D56E1EEB-743B-4990-95AA-272B9578DA0E}
+	EndGlobalSection
+EndGlobal

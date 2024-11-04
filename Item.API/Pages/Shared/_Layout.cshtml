@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Item.API</title>
+    <link rel="stylesheet" href="~/Item.API.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet"/>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar bg-dark">
+            <nav class="nav flex-column">
+                <a class="nav-link disabled" href="#">
+                    <span class="icon">
+                        <i class="bi bi-house-fill"></i>
+                    </span>
+                    <span class="description">Home</span>
+                </a>
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#submenu" aria-expanded="false" aria-controls="submenu">
+                    <span class="icon">
+                        <i class="bi bi-box-seam"></i>
+                    </span>
+                    <span class="description">Items<i class="bi bi-caret-down-fill"></i></span>
+                </a>
+                <!-- Submenu -->
+                <div class="sub-menu collapse" id="submenu">
+                    <a class="nav-link disabled" href="#">
+                        <span class="icon">
+                            <i class="bi bi-incognito"></i>
+                        </span>
+                        <span class="description">apparel</span>
+                    </a>
+                    <a class="nav-link disabled" href="#">
+                        <span class="icon">
+                            <i class="bi bi-handbag-fill"></i>
+                        </span>
+                        <span class="description">bags</span>
+                    </a>
+                    <a class="nav-link disabled" href="#">
+                        <span class="icon">
+                            <i class="bi bi-circle-fill"></i>
+                        </span>
+                        <span class="description">balls</span>
+                    </a>
+                    <a class="nav-link disabled" href="#">
+                        <span class="icon">
+                            <i class="bi bi-bell-fill"></i>
+                        </span>
+                        <span class="description">caddies</span>
+                    </a>
+                    <a class="nav-link" href="#">
+                        <span class="icon">
+                            <i class="bi bi-puzzle-fill"></i>
+                        </span>
+                        <span class="description">Club Parts</span>
+                    </a>
+                    <a class="nav-link disabled" href="#">
+                        <span class="icon">
+                            <i class="bi bi-archive-fill"></i>
+                        </span>
+                        <span class="description">Legacy</span>
+                    </a>
+                    <a class="nav-link disabled" href="#">
+                        <span class="icon">
+                            <i class="bi bi-collection-fill"></i>
+                        </span>
+                        <span class="description">Towels</span>
+                    </a>
+                </div>
+                <!-------------------->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
