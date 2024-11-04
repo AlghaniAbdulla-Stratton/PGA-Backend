@@ -4,6 +4,6 @@ namespace Inventory.API.Models.Utils.Items
 {
     public class ContentModel
     {
-        public BallModel[] balls { get; set; } = null!;
+        public List<BallModel> balls { get; set; } = new List<BallModel>();
     }
 }

@@ -1,4 +1,4 @@
-using Account.API.Services;
+using Inventory.API.Services;
 using Inventory.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
