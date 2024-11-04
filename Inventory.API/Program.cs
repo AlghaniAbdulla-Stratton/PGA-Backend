@@ -1,8 +1,19 @@
+using Account.API.Services;
+using Inventory.API.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.Configure<InventoryDatabaseSettings>(
+    builder.Configuration.GetSection("DatabaseSettings"));
+
+builder.Services.AddSingleton<InventoryService>();
+
+builder.Services.AddControllers().AddJsonOptions(opt =>
+{
+    opt.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
