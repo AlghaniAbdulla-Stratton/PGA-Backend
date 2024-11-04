@@ -9,7 +9,6 @@ builder.Services.Configure<ProfileDatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
 builder.Services.AddSingleton<AccountService>();
-builder.Services.AddSingleton<InventoryService>();
 builder.Services.AddHttpClient<HttpService>();
 
 builder.Services.AddControllers().AddJsonOptions(opt =>
