@@ -15,7 +15,7 @@ namespace Inventory.API.Controllers
         public InventoryController(InventoryService inventoryService) => _inventory = inventoryService;
 
         #region Inventory Accessor
-        [HttpPost("CreateInventory")]
+        [HttpPost("CreateInventory/{userId}")]
         public async Task<string> CreateInventory(string userId)
         {
             var existing = await _inventory.CheckExistingInventory(userId);
@@ -26,7 +26,7 @@ namespace Inventory.API.Controllers
         }
 
         [HttpGet("GetInventory")]
-        public async Task<IActionResult> GetInventory(InventoryValidation request)
+        public async Task<IActionResult> GetInventory([FromBody]InventoryValidation request)
         {
             var inventory = await _inventory.GetInventory(request);
             if (inventory is null)
