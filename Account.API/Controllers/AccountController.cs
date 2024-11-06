@@ -152,6 +152,33 @@ namespace Account.API.Controllers
             return Ok(profile);
         }
 
+        /// <summary>
+        /// Retrieve limited profile data for a given user by ID.
+        /// </summary>
+        [HttpGet("GetRemoteProfileData/{userId}")]
+        public async Task<ActionResult<RemoteProfileData>> GetRemoteProfileData(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("User ID is required.");
+
+            // Fetch the full profile model from the service
+            var profile = await _accountService.GetProfileAsync(userId);
+            if (profile == null)
+                return NotFound("Profile not found.");
+
+            // Map ProfileData to RemoteProfileData
+            var remoteProfile = new RemoteProfileData
+            {
+                UserId = profile.Profile.UserId,
+                Username = profile.Profile.Username,
+                ProfilePictureId = profile.Profile.ProfilePictureId,
+                BannerPictureId = profile.Profile.BannerPictureId,
+                Club = profile.Profile.Club
+            };
+
+            return Ok(remoteProfile);
+        }
+
         private string GenerateUniqueUsername()
         {
             const int maxRetries = 10000;
