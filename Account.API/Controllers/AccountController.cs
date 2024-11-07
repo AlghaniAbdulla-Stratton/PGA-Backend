@@ -14,15 +14,17 @@ namespace Account.API.Controllers
     {
         private readonly AccountService _accountService;
         private readonly HttpService _http;
+        private readonly HttpClient _httpClient;
         private readonly string[] _prefixes;
         private readonly string[] _adjectives;
         private readonly Random _random;
         private readonly DefaultProfileValues _defaultProfileValues;
 
-        public AccountController(AccountService accountService, HttpService httpService)
+        public AccountController(AccountService accountService, HttpService httpService, HttpClient httpClient)
         {
             _accountService = accountService;
             _http = httpService;
+            _httpClient = httpClient;
             (_prefixes, _adjectives) = LoadUsernameData();
             _random = new Random();
             _defaultProfileValues = LoadDefaultProfileValues();
@@ -134,6 +136,9 @@ namespace Account.API.Controllers
             var profile = await _accountService.GetProfileAsync(userId);
             if (profile == null)
             {
+                // Create a new inventory reference
+                HttpResponseMessage inventoryRequest = await _httpClient.PostAsJsonAsync($"https://pga-dev-inventory.onrender.com/api/v1/Inventory/CreateInventory/{userId}", new { });
+
                 var uniqueUsername = GenerateUniqueUsername();
                 profile = new ProfileModel
                 {
@@ -143,12 +148,16 @@ namespace Account.API.Controllers
                         Username = uniqueUsername,
                         Currency = _defaultProfileValues.Currency,
                         PremiumCurrency = _defaultProfileValues.PremiumCurrency,
-                        RemainingUsernameChanges = _defaultProfileValues.RemainingUsernameChanges
+                        RemainingUsernameChanges = _defaultProfileValues.RemainingUsernameChanges,
+                    },
+                    ExternalReference = new ExternalReference
+                    {
+                        // Add the inventory id reference
+                        Inventory = inventoryRequest.Content.ReadAsStringAsync().Result
                     }
                 };
                 await _accountService.InsertProfileAsync(profile);
             }
-
             return Ok(profile);
         }
 
