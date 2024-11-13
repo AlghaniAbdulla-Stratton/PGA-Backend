@@ -1,6 +1,7 @@
 ﻿using Multiplayer.API.Models;
 using Multiplayer.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using PGALegends.Models;
 
 namespace Multiplayer.API.Controllers
 {
@@ -28,12 +29,27 @@ namespace Multiplayer.API.Controllers
             return longdrive;
         }
 
+        // GET: Get paginated match history for a player
+        [HttpGet("player/{playerId}/match-history")]
+        public async Task<ActionResult<List<MatchRecord>>> GetPaginatedMatchHistory(
+            string playerId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var matchHistory = await _longdriveService.GetPaginatedMatchHistoryAsync(playerId, pageNumber, pageSize);
+
+            if (matchHistory == null || matchHistory.Count == 0)
+                return NotFound("No match history found.");
+
+            return Ok(matchHistory);
+        }
+
         // GET: Get random long drive data
         [HttpGet("single")]
         public async Task<ActionResult<LongDriveModel>> GetRandomLongdrive()
         {
             var result = await _longdriveService.GetRandomAsync();
-            if(result is null)
+            if (result is null)
                 return NotFound();
 
             return result;
@@ -56,7 +72,24 @@ namespace Multiplayer.API.Controllers
         {
             await _longdriveService.CreateAsync(newLongdrive);
 
-            return CreatedAtAction(nameof(Get), new {id = newLongdrive.id}, newLongdrive);
+            return CreatedAtAction(nameof(Get), new { id = newLongdrive.id }, newLongdrive);
         }
+
+        // POST: Upload a new match record
+        [HttpPost("match/upload")]
+        public async Task<ActionResult> UploadMatchRecord([FromBody] MatchRecord matchRecord)
+        {
+            // Upload the match record to the MatchRecords collection
+            await _longdriveService.UploadMatchRecordAsync(matchRecord);
+
+            // Update or create PlayerMatchHistory for both Player1 and Player2
+            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player1Id, matchRecord._id);
+            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player2Id, matchRecord._id);
+
+            // Assuming Player1Id is the primary player for the match
+            return CreatedAtAction(nameof(GetPaginatedMatchHistory), new { playerId = matchRecord.Player1Id }, matchRecord);
+        }
+
+
     }
 }
