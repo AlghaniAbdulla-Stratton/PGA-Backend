@@ -45,25 +45,42 @@ namespace Multiplayer.API.Controllers
         }
 
         // GET: Get random long drive data
-        [HttpGet("single")]
-        public async Task<ActionResult<LongDriveModel>> GetRandomLongdrive()
+        [HttpGet("single/{playerId}")]
+        public async Task<ActionResult> GetRandomLongdrive(string playerId)
         {
-            var result = await _longdriveService.GetRandomAsync();
-            if (result is null)
-                return NotFound();
+            var (longDriveModel, isReplayed) = await _longdriveService.GetRandomLongdriveAsync(playerId);
 
-            return result;
+            if (longDriveModel == null)
+            {
+                return NotFound("No available long drive matches found.");
+            }
+
+            // Return the LongDriveModel along with the replay status
+            return Ok(new
+            {
+                LongDriveModel = longDriveModel,
+                IsReplayed = isReplayed
+            });
         }
 
-        // GET: Get random long drive data filtered by map name
-        [HttpGet("single/{mapId:int}")]
-        public async Task<ActionResult<LongDriveModel>> GetRandomLongdriveByMap(int mapId)
-        {
-            var result = await _longdriveService.GetRandomByMapAsync(mapId);
-            if (result is null)
-                return NotFound();
 
-            return result;
+        // GET: Get random long drive data filtered by map name
+        [HttpGet("single/{mapId:int}/{playerId}")]
+        public async Task<ActionResult> GetRandomLongdriveByMap(int mapId, string playerId)
+        {
+            var (longDriveModel, isReplayed) = await _longdriveService.GetRandomLongdriveByMapAsync(mapId, playerId);
+
+            if (longDriveModel == null)
+            {
+                return NotFound("No available long drive matches found.");
+            }
+
+            // Return the LongDriveModel along with the replay status
+            return Ok(new
+            {
+                LongDriveModel = longDriveModel,
+                IsReplayed = isReplayed
+            });
         }
 
         // POST: Create new long drive data
@@ -82,9 +99,8 @@ namespace Multiplayer.API.Controllers
             // Upload the match record to the MatchRecords collection
             await _longdriveService.UploadMatchRecordAsync(matchRecord);
 
-            // Update or create PlayerMatchHistory for both Player1 and Player2
-            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player1Id, matchRecord._id);
-            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player2Id, matchRecord._id);
+            // Update or create PlayerMatchHistory for player 1 because he is the one live playing the game
+            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player1Id, matchRecord.Player2MatchDataId);
 
             // Assuming Player1Id is the primary player for the match
             return CreatedAtAction(nameof(GetPaginatedMatchHistory), new { playerId = matchRecord.Player1Id }, matchRecord);

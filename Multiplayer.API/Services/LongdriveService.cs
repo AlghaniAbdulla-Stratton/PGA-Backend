@@ -29,32 +29,109 @@ namespace Multiplayer.API.Services
         public async Task<LongDriveModel?> GetAsync(string id) =>
             await _longdriveCollection.Find(i => i.id == id).FirstOrDefaultAsync();
 
-        // Get random long drive data
-        public async Task<LongDriveModel?> GetRandomAsync()
+        public async Task<(LongDriveModel? longDriveModel, bool isReplayed)> GetRandomLongdriveAsync(string playerId)
         {
-            var count = await _longdriveCollection.CountDocumentsAsync(new BsonDocument());
-            if (count == 0)
-                return null;
+            // Step 1: Retrieve the player's match history to find games they’ve already played
+            var playerHistory = await _playerMatchHistoryCollection
+                .Find(history => history.UserId == playerId)
+                .FirstOrDefaultAsync();
 
-            var random = new Random();
-            var skip = random.Next(0, (int)count);
+            var playedMatchIds = playerHistory?.PlayedMatchIds ?? Array.Empty<string>();
 
-            return await _longdriveCollection.Find(new BsonDocument()).Skip(skip).Limit(1).FirstOrDefaultAsync();
+            // Step 2: Define a filter to find LongDriveModels not created by the player
+            var notPlayerCreatedFilter = Builders<LongDriveModel>.Filter.Ne(model => model.UserId, playerId);
+
+            // If the player has no match history, return any random match not created by the player
+            if (playerHistory == null)
+            {
+                var fallbackModel = await _longdriveCollection.Aggregate()
+                    .Match(notPlayerCreatedFilter)
+                    .Sample(1)
+                    .FirstOrDefaultAsync();
+
+                return (fallbackModel, isReplayed: false);
+            }
+
+            // Step 3: Attempt to find a random unplayed LongDriveModel
+            var unplayedModelPipeline = new[]
+            {
+        new BsonDocument("$match", new BsonDocument
+        {
+            { "UserId", new BsonDocument("$ne", playerId) },
+            { "_id", new BsonDocument("$nin", new BsonArray(playedMatchIds.Select(id => new ObjectId(id)))) }
+        }),
+        new BsonDocument("$sample", new BsonDocument("size", 1)) // Randomly select 1 document
+    };
+
+            var unplayedModel = await _longdriveCollection.Aggregate<LongDriveModel>(unplayedModelPipeline).FirstOrDefaultAsync();
+            if (unplayedModel != null)
+            {
+                return (unplayedModel, isReplayed: false);
+            }
+
+            // Step 4: Fallback to a previously played game with a "replayed" flag
+            var replayedModelPipeline = new[]
+            {
+        new BsonDocument("$match", new BsonDocument
+        {
+            { "UserId", new BsonDocument("$ne", playerId) },
+            { "_id", new BsonDocument("$in", new BsonArray(playedMatchIds.Select(id => new ObjectId(id)))) }
+        }),
+        new BsonDocument("$sample", new BsonDocument("size", 1)) // Randomly select 1 document
+    };
+
+            var replayedModel = await _longdriveCollection.Aggregate<LongDriveModel>(replayedModelPipeline).FirstOrDefaultAsync();
+            return (replayedModel, isReplayed: true);
         }
+
+
+
 
         // Get random long drive data filtered by map ID
-        public async Task<LongDriveModel?> GetRandomByMapAsync(int mapId)
+        public async Task<(LongDriveModel? longDriveModel, bool isReplayed)> GetRandomLongdriveByMapAsync(int mapId, string playerId)
         {
-            var filter = Builders<LongDriveModel>.Filter.Eq(i => i.MapId, mapId);
-            var count = await _longdriveCollection.CountDocumentsAsync(filter);
-            if (count == 0)
-                return null;
+            // Step 1: Retrieve the player's match history to find games they’ve already played
+            var playerHistory = await _playerMatchHistoryCollection
+                .Find(history => history.UserId == playerId)
+                .FirstOrDefaultAsync();
 
-            var random = new Random();
-            var skip = random.Next(0, (int)count);
+            // If the player has no history, initialize `playedMatchIds` as an empty array
+            var playedMatchIds = playerHistory?.PlayedMatchIds?.Select(id => new ObjectId(id)).ToArray() ?? Array.Empty<ObjectId>();
 
-            return await _longdriveCollection.Find(filter).Skip(skip).Limit(1).FirstOrDefaultAsync();
+            // Step 2: Attempt to find a LongDriveModel that the player hasn't used before
+            var unplayedModelPipeline = new[]
+            {
+        new BsonDocument("$match", new BsonDocument
+        {
+            { "MapId", mapId },
+            { "UserId", new BsonDocument("$ne", playerId) },
+            { "_id", new BsonDocument("$nin", new BsonArray(playedMatchIds)) }
+        }),
+        new BsonDocument("$sample", new BsonDocument("size", 1)) // Randomly select 1 document
+    };
+
+            var unplayedModel = await _longdriveCollection.Aggregate<LongDriveModel>(unplayedModelPipeline).FirstOrDefaultAsync();
+            if (unplayedModel != null)
+            {
+                return (unplayedModel, isReplayed: false);
+            }
+
+            // Step 3: If no unplayed model is found, return a random previously played model with a "replayed" flag
+            var replayedModelPipeline = new[]
+            {
+        new BsonDocument("$match", new BsonDocument
+        {
+            { "MapId", mapId },
+            { "UserId", new BsonDocument("$ne", playerId) },
+            { "_id", new BsonDocument("$in", new BsonArray(playedMatchIds)) }
+        }),
+        new BsonDocument("$sample", new BsonDocument("size", 1)) // Randomly select 1 document
+    };
+
+            var replayedModel = await _longdriveCollection.Aggregate<LongDriveModel>(replayedModelPipeline).FirstOrDefaultAsync();
+            return (replayedModel, isReplayed: true);
         }
+
 
         // Post new long drive data
         public async Task CreateAsync(LongDriveModel newLongdrive) =>
@@ -87,12 +164,12 @@ namespace Multiplayer.API.Services
                 .ToList();
 
             // Fetch the MatchRecord documents for the paginated IDs
-            var filter = Builders<MatchRecord>.Filter.In(record => record._id, paginatedMatchIds);
+            var filter = Builders<MatchRecord>.Filter.In(record => record.id, paginatedMatchIds);
             return await _matchRecordCollection.Find(filter).ToListAsync();
         }
 
         // Add or update player match history for a specific match
-        public async Task AddOrUpdatePlayerMatchHistoryAsync(string playerId, string matchId)
+        public async Task AddOrUpdatePlayerMatchHistoryAsync(string playerId, string? matchId)
         {
             var filter = Builders<PlayerMatchHistory>.Filter.Eq(history => history.UserId, playerId);
             var update = Builders<PlayerMatchHistory>.Update.AddToSet(history => history.PlayedMatchIds, matchId);
