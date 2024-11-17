@@ -16,10 +16,12 @@ namespace Multiplayer.API.Services
         {
             var mongoClient = new MongoClient(longdriveDatabaseSettings.Value.ConnectionString);
             var mongoDatabase = mongoClient.GetDatabase(longdriveDatabaseSettings.Value.DatabaseName);
+
             _longdriveCollection = mongoDatabase.GetCollection<LongDriveModel>(longdriveDatabaseSettings.Value.LongdriveCollectionName);
-            _matchRecordCollection = mongoDatabase.GetCollection<MatchRecord>("match_records");
-            _playerMatchHistoryCollection = mongoDatabase.GetCollection<PlayerMatchHistory>("players_match_history");
+            _matchRecordCollection = mongoDatabase.GetCollection<MatchRecord>(longdriveDatabaseSettings.Value.MatchRecordsCollectionName);
+            _playerMatchHistoryCollection = mongoDatabase.GetCollection<PlayerMatchHistory>(longdriveDatabaseSettings.Value.PlayerMatchHistoryCollectionName);
         }
+
 
         // Get all long drive data
         public async Task<List<LongDriveModel>> GetAsync() =>
