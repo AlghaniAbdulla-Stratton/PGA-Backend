@@ -31,18 +31,21 @@ namespace Multiplayer.API.Controllers
 
         // GET: Get paginated match history for a player
         [HttpGet("player/{playerId}/match-history")]
-        public async Task<ActionResult<List<MatchRecord>>> GetPaginatedMatchHistory(
-            string playerId,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<MatchHistoryResponse>> GetPaginatedMatchHistory(
+    string playerId,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10)
         {
-            var matchHistory = await _longdriveService.GetPaginatedMatchHistoryAsync(playerId, pageNumber, pageSize);
+            var matchHistoryResponse = await _longdriveService.GetPaginatedMatchHistoryAsync(playerId, pageNumber, pageSize);
 
-            if (matchHistory == null || matchHistory.Count == 0)
+            if (matchHistoryResponse == null || matchHistoryResponse.MatchRecords.Length == 0)
+            {
                 return NotFound("No match history found.");
+            }
 
-            return Ok(matchHistory);
+            return Ok(matchHistoryResponse);
         }
+
 
         // GET: Get random long drive data
         [HttpGet("single/{playerId}")]

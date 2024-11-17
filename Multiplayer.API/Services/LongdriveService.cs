@@ -143,16 +143,21 @@ namespace Multiplayer.API.Services
 
         // Get paginated match history for a specific player
         // Method to get a player's match history
-        public async Task<List<MatchRecord>> GetPaginatedMatchHistoryAsync(string playerId, int pageNumber, int pageSize)
+        public async Task<MatchHistoryResponse> GetPaginatedMatchHistoryAsync(string playerId, int pageNumber, int pageSize)
         {
             // Find the player's match history document
             var playerHistory = await _playerMatchHistoryCollection
                 .Find(history => history.UserId == playerId)
                 .FirstOrDefaultAsync();
 
-            // If no history exists, return an empty list
+            // If no history exists, return an empty MatchHistoryResponse
             if (playerHistory == null || playerHistory.PlayedMatchIds == null)
-                return new List<MatchRecord>();
+            {
+                return new MatchHistoryResponse
+                {
+                    MatchRecords = Array.Empty<MatchRecord>()
+                };
+            }
 
             // Get the IDs of matches the player has participated in
             var playedMatchIds = playerHistory.PlayedMatchIds;
@@ -165,8 +170,15 @@ namespace Multiplayer.API.Services
 
             // Fetch the MatchRecord documents for the paginated IDs
             var filter = Builders<MatchRecord>.Filter.In(record => record.id, paginatedMatchIds);
-            return await _matchRecordCollection.Find(filter).ToListAsync();
+            var matchRecords = await _matchRecordCollection.Find(filter).ToListAsync();
+
+            // Return the MatchHistoryResponse object
+            return new MatchHistoryResponse
+            {
+                MatchRecords = matchRecords.ToArray()
+            };
         }
+
 
         // Add or update player match history for a specific match
         public async Task AddOrUpdatePlayerMatchHistoryAsync(string playerId, string? matchId)
