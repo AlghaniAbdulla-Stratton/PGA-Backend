@@ -182,17 +182,19 @@ namespace Multiplayer.API.Services
                 };
             }
 
-            // Get the IDs of matches the player has participated in
-            var playedMatchIds = playerHistory.PlayedMatchIds;
+            // Get the IDs of matches the player has participated in as ObjectId
+            var playedMatchIdsAsObjectIds = playerHistory.PlayedMatchIds
+                .Select(ObjectId.Parse)
+                .ToArray();
 
             // Paginate the match IDs
-            var paginatedMatchIds = playedMatchIds
+            var paginatedMatchIds = playedMatchIdsAsObjectIds
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
             // Fetch the MatchRecord documents for the paginated IDs
-            var filter = Builders<MatchRecord>.Filter.In(record => record.id.ToString(), paginatedMatchIds);
+            var filter = Builders<MatchRecord>.Filter.In(record => record.id, paginatedMatchIds);
             var matchRecords = await _matchRecordCollection.Find(filter).ToListAsync();
 
             // Return the MatchHistoryResponse object
@@ -201,6 +203,7 @@ namespace Multiplayer.API.Services
                 MatchRecords = matchRecords.ToArray()
             };
         }
+
 
 
         // Add or update player match history for a specific match
