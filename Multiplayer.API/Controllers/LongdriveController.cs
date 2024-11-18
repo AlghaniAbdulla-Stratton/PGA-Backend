@@ -103,7 +103,7 @@ namespace Multiplayer.API.Controllers
             await _longdriveService.UploadMatchRecordAsync(matchRecord);
 
             // Update or create PlayerMatchHistory for player 1 because he is the one live playing the game
-            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player1Id, matchRecord.Player2MatchDataId);
+            await _longdriveService.AddOrUpdatePlayerMatchHistoryAsync(matchRecord.Player1Id, matchRecord.id.ToString());
 
             // Assuming Player1Id is the primary player for the match
             return CreatedAtAction(nameof(GetPaginatedMatchHistory), new { playerId = matchRecord.Player1Id }, matchRecord);
