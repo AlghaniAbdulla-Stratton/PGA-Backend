@@ -12,7 +12,7 @@ namespace PGALegends.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? id { get; set; }
+        public ObjectId id { get; set; }
         /// <summary>
         /// Unique identifiers for the two players in the match.
         /// </summary>
